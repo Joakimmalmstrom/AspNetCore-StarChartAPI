@@ -19,9 +19,9 @@ namespace StarChart.Controllers
         }
 
         [HttpGet("{int:id}", Name = "GetById")]
-        public async Task<IActionResult> GetById(int id)
+        public IActionResult GetById(int id)
         {
-            var celestial = await _context.CelestialObjects.FindAsync(id);
+            var celestial = _context.CelestialObjects.Find(id);
 
             if (celestial is null) return NotFound();
 
@@ -35,7 +35,7 @@ namespace StarChart.Controllers
         {
             var celestials = _context.CelestialObjects.Where(c => c.Name == name);
 
-            if (celestials is null) return NotFound();
+            if (!celestials.Any()) return NotFound();
 
             foreach (var item in celestials)
             {
@@ -50,7 +50,7 @@ namespace StarChart.Controllers
         {
             var celestials = _context.CelestialObjects.ToList();
 
-            if (celestials is null) return NotFound();
+            if (!celestials.Any()) return NotFound();
 
             foreach (var item in celestials)
             {

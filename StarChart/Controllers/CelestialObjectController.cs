@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using StarChart.Data;
+using StarChart.Models;
 
 namespace StarChart.Controllers
 {
@@ -58,6 +59,61 @@ namespace StarChart.Controllers
             }
 
             return Ok(celestials);
+        }
+
+        [HttpPost]
+        public IActionResult Create([FromBody] CelestialObject celestial)
+        {
+            if (celestial is null) return NotFound();
+
+            _context.Add(celestial);
+            _context.SaveChanges();
+
+            return CreatedAtRoute("GetById", new { id = celestial.Id }, celestial);
+        }
+
+        [HttpPut("{id}")]
+        public IActionResult Update(int id, CelestialObject celestial)
+        {
+            var existingCelestial = _context.CelestialObjects.Find(id);
+
+            if (existingCelestial is null) return NotFound();
+
+            existingCelestial.Name = celestial.Name;
+            existingCelestial.OrbitalPeriod = celestial.OrbitalPeriod;
+            existingCelestial.OrbitedObjectId = celestial.OrbitedObjectId;
+
+            _context.Update(existingCelestial);
+            _context.SaveChanges();
+
+            return NoContent();
+        }
+
+        [HttpPatch("{id}/{name}")]
+        public IActionResult RenameObject(int id, string name)
+        {
+            var existingCelestial = _context.CelestialObjects.Find(id);
+
+            if (existingCelestial is null) return NotFound();
+
+            existingCelestial.Name = name;
+            _context.Update(existingCelestial);
+            _context.SaveChanges();
+
+            return NoContent();
+        }
+
+        [HttpDelete("{id}")]
+        public IActionResult Delete(int id)
+        {
+            var existingCelestial = _context.CelestialObjects.Where(c => c.Id == id || c.OrbitedObjectId == id).ToList();
+
+            if (!existingCelestial.Any()) return NotFound();
+
+            _context.RemoveRange(existingCelestial);
+            _context.SaveChanges();
+
+            return NoContent();
         }
     }
 
